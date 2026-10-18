@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2e8b57">
+<title>Yeşeren Anı – Bitki Günlüğü</title>
+<style>
+:root{
+  --bg:#f6f8f4; --card:#ffffff; --text:#1f2d22; --muted:#667268;
+  --border:#dbe4dc; --green:#2e8b57; --green2:#e9f7ef; --yellow:#e3a008;
+  --yellow2:#fff8df; --red:#c73737; --red2:#fff0f0;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1080px;margin:auto;padding:18px}
+h1{font-size:28px;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 18px}
+.grid{display:grid;gap:14px}
+.pots{grid-template-columns:repeat(4,1fr)}
+@media(max-width:800px){.pots{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.pots{grid-template-columns:1fr}.two{grid-template-columns:1fr!important}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 4px 18px rgba(30,55,35,.05)}
+.pot{cursor:pointer;transition:.15s}.pot:hover{transform:translateY(-1px)}.pot.active{outline:2px solid var(--green)}
+.light{width:58px;height:58px;border-radius:50%;margin:12px 0 8px;border:5px solid #e5e9e5;background:#eef1ee}
+.light.yellow{background:#f8c94c;box-shadow:0 0 18px rgba(227,160,8,.45)}
+.light.green{background:#44c677;box-shadow:0 0 22px rgba(46,139,87,.55)}
+.light.red{background:#eb5d5d;box-shadow:0 0 22px rgba(199,55,55,.45)}
+.small{font-size:13px;color:var(--muted)} .state{font-weight:700}
+.two{grid-template-columns:1fr 1fr}
+label{display:block;font-size:14px;font-weight:600}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text)}
+textarea{resize:vertical}
+button{border:none;border-radius:12px;padding:12px 15px;cursor:pointer;font-weight:700}
+.primary{background:var(--green);color:#fff}.secondary{background:#eef2ee;color:var(--text)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.alert{border-radius:14px;padding:13px 14px;margin-top:14px;font-weight:650}
+.alert.info{background:#eef4ff;color:#254f93}.alert.warn{background:var(--yellow2);color:#8a5e00}
+.alert.ok{background:var(--green2);color:#1d6b42}.alert.bad{background:var(--red2);color:#a22c2c}
+.hope{font-size:20px;font-weight:700;line-height:1.45}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:11px;border-top:1px solid var(--border);text-align:left;font-size:14px;vertical-align:top}
+th{background:#f3f6f3}.scroll{overflow-x:auto}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}
+.b-early{background:var(--yellow2);color:#8a5e00}.b-good{background:var(--green2);color:#1d6b42}
+.b-late{background:var(--red2);color:#a22c2c}.b-first{background:#eef4ff;color:#254f93}
+.topnote{background:#edf7ef;border:1px solid #cae8d0;padding:12px 14px;border-radius:14px;margin-bottom:16px}
+.install{display:none;margin-bottom:14px}
+.offline{font-size:12px;color:#1d6b42;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌱 Yeşeren Anı – Bitki Günlüğü</h1>
+  <p class="sub">Sulama tarihini, verilen su miktarını ve gözlemlerini kaydet. Uygulama 5 günlük sulama dengesini takip eder.</p>
+  
+  <div class="offline">✓ Bu tek dosya çevrimdışı çalışır. Veriler yalnızca bu cihazda saklanır.</div>
+
+  <div class="topnote"><b>Kural:</b> Son sulamadan <b>5 gün dolmadan</b> yeni sulama tarihi seçilirse “erken sulama” uyarısı verilir. 5. gün uygun, 6. gün ve sonrası gecikmiş olarak işaretlenir.</div>
+
+  <div id="potCards" class="grid pots"></div>
+
+  <div class="grid two" style="margin-top:16px">
+    <section class="card">
+      <h2 style="margin-top:0">Yeni günlük kaydı</h2>
+      <div class="grid two">
+        <label>Saksı
+          <select id="pot">
+            <option value="K">Kontrol</option>
+            <option value="P">Portakal kabuğu</option>
+            <option value="E">Elma kabuğu</option>
+            <option value="Y">Yumurta kabuğu</option>
+          </select>
+        </label>
+        <label>Tarih
+          <input id="date" type="date">
+        </label>
+        <label>Verilen su (mL)
+          <input id="water" type="number" min="0" step="1" value="0">
+        </label>
+        <label>Hafta
+          <select id="week">
+            <option>0</option><option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+          </select>
+        </label>
+      </div>
+      <label style="margin-top:12px">Bugünkü gözlemim
+        <textarea id="note" rows="4" placeholder="Yeni yaprak, canlı görünüm, renk değişimi, genel gözlem..."></textarea>
+      </label>
+      <div id="dateWarning" class="alert info">İlk sulama kaydında 5 günlük karşılaştırma yapılmaz.</div>
+      <div class="actions" style="margin-top:14px">
+        <button id="saveBtn" class="primary">Kaydı ekle</button>
+        <button id="clearBtn" class="secondary">Formu temizle</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0">Bugünün umudu</h2>
+      <div id="hope" class="hope">“Her yeni filiz, yarının mümkün olduğunu hatırlatır.”</div>
+      <p class="small" style="margin-top:10px">Bu cümleler uygulama için özgün olarak yazılmıştır. İsterseniz bakım sırasında bitkinize okuyabilirsiniz.</p>
+      <hr style="border:none;border-top:1px solid var(--border);margin:18px 0">
+      <h3>Seçili saksının özeti</h3>
+      <div id="summary" class="small">Henüz kayıt yok.</div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+      <div>
+        <h2 style="margin:0">Bitki günlüğü</h2>
+        <p class="small" style="margin:4px 0 0">Sulama ve gözlem kayıtları bu cihazda saklanır.</p>
+      </div>
+      <div class="actions">
+        <button id="csvBtn" class="secondary">CSV indir</button>
+        <button id="resetBtn" class="secondary">Tüm kayıtları sil</button>
+      </div>
+    </div>
+    <div class="scroll" style="margin-top:12px">
+      <table>
+        <thead><tr><th>Tarih</th><th>Saksı</th><th>Hafta</th><th>Su</th><th>Durum</th><th>Sonraki önerilen tarih</th><th>Gözlem</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const names={K:"Kontrol",P:"Portakal",E:"Elma",Y:"Yumurta"};
+const desc={K:"Kabuk yok",P:"100 g portakal kabuğu",E:"100 g elma kabuğu",Y:"100 g yumurta kabuğu"};
+const messages=[
+"Her yeni filiz, yarının mümkün olduğunu hatırlatır.",
+"Bugün verdiğin bir damla, yarının yeni yaprağı olabilir.",
+"Büyümek bazen sessizce devam etmektir.",
+"Toprak sabırla bekler; umut zamanı gelince yeşerir.",
+"Her küçük bakım, geleceğe bırakılmış yeşil bir izdir.",
+"Bir yaprağın açması, yeniden başlamanın mümkün olduğunu söyler.",
+"Doğa acele etmez; yine de her şey zamanında büyür.",
+"Umut, bazen yeni bir filizin görünmesini beklemektir.",
+"Her bakım günü, yarına bırakılan küçük bir iyiliktir.",
+"Yeşeren her yaprak, sabrın sessiz cevabıdır."
+];
+
+// Bu PWA sürümü sıfır veriyle başlar.
+let records=[];
+try{
+  const saved=localStorage.getItem("yeserenAniOfflineRecords");
+  if(saved) records=JSON.parse(saved)||[];
+}catch(e){records=[]}
+
+let selectedPot="K";
+const $=id=>document.getElementById(id);
+
+function isoToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+$("date").value=isoToday();
+function msDate(s){const [y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d);}
+function addDays(s,n){const d=new Date(msDate(s)+n*86400000);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}-${String(d.getUTCDate()).padStart(2,"0")}`;}
+function dayDiff(a,b){return Math.round((msDate(b)-msDate(a))/86400000);}
+function fmt(s){if(!s)return "—";const [y,m,d]=s.split("-");return `${d}.${m}.${y}`;}
+
+function waterRecords(pot){return records.filter(r=>r.pot===pot&&Number(r.water)>0).sort((a,b)=>msDate(a.date)-msDate(b.date));}
+function lastWaterBefore(pot,date){const arr=waterRecords(pot).filter(r=>msDate(r.date)<msDate(date));return arr.length?arr[arr.length-1]:null;}
+function latestWater(pot){const arr=waterRecords(pot);return arr.length?arr[arr.length-1]:null;}
+
+function classify(pot,date,water){
+ if(Number(water)<=0)return{type:"Gözlem",cls:"b-first",next:"—"};
+ const prev=lastWaterBefore(pot,date);
+ if(!prev)return{type:"İlk sulama",cls:"b-first",next:addDays(date,5)};
+ const d=dayDiff(prev.date,date);
+ if(d<5)return{type:`Erken (${d}. gün)`,cls:"b-early",next:addDays(prev.date,5)};
+ if(d===5)return{type:"Uygun (5. gün)",cls:"b-good",next:addDays(date,5)};
+ return{type:`Geç (${d}. gün)`,cls:"b-late",next:addDays(date,5)};
+}
+
+function currentLight(pot){
+ const last=latestWater(pot);
+ if(!last)return{color:"",text:"Henüz sulama kaydı yok",last:null,next:null};
+ const d=dayDiff(last.date,isoToday()),next=addDays(last.date,5);
+ if(d<5)return{color:"yellow",text:`${d}. gün • henüz sulama zamanı değil`,last:last.date,next};
+ if(d===5)return{color:"green",text:"Bugün sulama günü",last:last.date,next};
+ return{color:"red",text:`${d}. gün • sulama gecikmiş olabilir`,last:last.date,next};
+}
+
+function renderCards(){
+ const box=$("potCards");box.innerHTML="";
+ ["K","P","E","Y"].forEach(p=>{
+  const s=currentLight(p),div=document.createElement("div");
+  div.className="card pot"+(p===selectedPot?" active":"");
+  div.innerHTML=`<div class="small">${p} • ${names[p]}</div><div style="font-weight:800;margin-top:3px">${desc[p]}</div>
+  <div class="light ${s.color}"></div><div class="state">${s.text}</div>
+  <div class="small" style="margin-top:8px">Son sulama: ${fmt(s.last)}</div><div class="small">Önerilen tarih: ${fmt(s.next)}</div>`;
+  div.onclick=()=>{selectedPot=p;$("pot").value=p;renderAll();};box.appendChild(div);
+ });
+}
+
+function updateWarning(){
+ const pot=$("pot").value,date=$("date").value,water=Number($("water").value||0),el=$("dateWarning");
+ if(!date){el.className="alert info";el.textContent="Tarih seçiniz.";return;}
+ if(water<=0){el.className="alert info";el.textContent="Bu kayıt yalnızca gözlem olarak kaydedilecek; sulama aralığı değişmeyecek.";return;}
+ const prev=lastWaterBefore(pot,date);
+ if(!prev){el.className="alert info";el.textContent="Bu saksı için ilk sulama kaydı. 5 günlük sayaç bu tarihten başlayacak.";return;}
+ const d=dayDiff(prev.date,date);
+ if(d<5){el.className="alert warn";el.innerHTML=`⚠️ <b>Erken sulama:</b> Son sulamadan yalnızca ${d} gün geçti. Önerilen en erken tarih <b>${fmt(addDays(prev.date,5))}</b>.`;}
+ else if(d===5){el.className="alert ok";el.innerHTML="🟢 <b>Uygun sulama zamanı:</b> Son sulamadan 5 gün geçti.";}
+ else{el.className="alert bad";el.innerHTML=`🔴 <b>Sulama gecikmiş olabilir:</b> Son sulamadan ${d} gün geçti.`;}
+}
+
+function renderTable(){
+ const body=$("rows");body.innerHTML="";
+ [...records].sort((a,b)=>msDate(b.date)-msDate(a.date)).forEach(r=>{
+  const c=classify(r.pot,r.date,r.water),tr=document.createElement("tr");
+  tr.innerHTML=`<td>${fmt(r.date)}</td><td>${names[r.pot]}</td><td>${r.week}</td><td>${r.water} mL</td>
+  <td><span class="badge ${c.cls}">${c.type}</span></td><td>${c.next==="—"?"—":fmt(c.next)}</td><td>${escapeHtml(r.note||"—")}</td>`;
+  body.appendChild(tr);
+ });
+}
+
+function renderSummary(){
+ const arr=records.filter(r=>r.pot===selectedPot),waters=arr.filter(r=>Number(r.water)>0);
+ const total=waters.reduce((s,r)=>s+Number(r.water),0),last=latestWater(selectedPot);
+ const early=waters.filter(r=>classify(r.pot,r.date,r.water).type.startsWith("Erken")).length;
+ const good=waters.filter(r=>classify(r.pot,r.date,r.water).type.startsWith("Uygun")).length;
+ const late=waters.filter(r=>classify(r.pot,r.date,r.water).type.startsWith("Geç")).length;
+ $("summary").innerHTML=arr.length?`<b>${names[selectedPot]}</b><br>Toplam kayıt: ${arr.length}<br>Sulama kaydı: ${waters.length}<br>Toplam verilen su: ${total} mL<br>Son sulama: ${fmt(last&&last.date)}<br>Uygun: ${good} • Erken: ${early} • Geç: ${late}`:"Henüz kayıt yok.";
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function persist(){localStorage.setItem("yeserenAniOfflineRecords",JSON.stringify(records));}
+
+function save(){
+ const pot=$("pot").value,date=$("date").value,water=Number($("water").value||0),week=$("week").value,note=$("note").value.trim();
+ if(!date){alert("Lütfen tarih seçin.");return;}
+ records.push({id:Date.now(),pot,date,water,week,note});persist();selectedPot=pot;
+ $("hope").textContent="“"+messages[(records.length-1)%messages.length]+"”";
+ $("water").value="0";$("note").value="";renderAll();
+}
+function clearForm(){$("water").value="0";$("note").value="";$("date").value=isoToday();updateWarning();}
+function downloadCSV(){
+ const header=["Tarih","Saksı","Hafta","Su_mL","Durum","Sonraki_Onerilen_Tarih","Gozlem"],lines=[header.join(";")];
+ records.forEach(r=>{const c=classify(r.pot,r.date,r.water);const vals=[r.date,names[r.pot],r.week,r.water,c.type,c.next,r.note||""].map(v=>`"${String(v).replaceAll('"','""')}"`);lines.push(vals.join(";"));});
+ const blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="yeseren_umut_bitki_gunlugu.csv";a.click();URL.revokeObjectURL(a.href);
+}
+function resetAll(){if(confirm("Tüm kayıtlar silinsin mi?")){records=[];localStorage.removeItem("yeserenAniOfflineRecords");renderAll();}}
+function renderAll(){renderCards();renderTable();renderSummary();updateWarning();}
+
+$("pot").onchange=e=>{selectedPot=e.target.value;renderAll();};
+$("date").onchange=updateWarning;$("water").oninput=updateWarning;
+$("saveBtn").onclick=save;$("clearBtn").onclick=clearForm;$("csvBtn").onclick=downloadCSV;$("resetBtn").onclick=resetAll;
+renderAll();
+
+
+</script>
+</body>
+</html>
